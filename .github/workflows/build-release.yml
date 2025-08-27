@@ -34,8 +34,8 @@ jobs:
 
       - name: Install Homebrew dependencies
         run: |
-          # Install required tools from Homebrew
-          brew install shards pkg-config
+          # Install Crystal (includes shards) and pkg-config from Homebrew
+          brew install crystal pkg-config
 
       - name: Download and Extract Crystal Compiler
         run: |
@@ -59,8 +59,8 @@ jobs:
           
           # Create symlinks to tools
           ln -s ../crystal-1.17.1-1/bin/crystal bin/crystal
-          ln -s $(which shards) bin/shards
-          ln -s $(which pkg-config) bin/pkg-config
+          ln -s $(brew --prefix)/bin/shards bin/shards
+          ln -s $(brew --prefix)/bin/pkg-config bin/pkg-config
 
       - name: Checkout Coverage Reporter
         uses: actions/checkout@v4
