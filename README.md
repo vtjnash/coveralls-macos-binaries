@@ -52,7 +52,7 @@ git clone https://github.com/coverallsapp/coverage-reporter.git
 cd coverage-reporter
 
 # Install production dependencies
-PATH=../bin:$PATH ../bin/shards install --production
+PATH=$PWD/../bin:$PATH $PWD/../bin/shards install --production
 ```
 
 ### 5. Extract OpenSSL to Distribution Folder
@@ -69,9 +69,9 @@ tar -xzf ../OpenSSL.v3.5.2.aarch64-apple-darwin.tar.gz -C dist/OpenSSL.v3.5.2.aa
 
 ```bash
 # Build with Crystal's embedded libraries and Julia OpenSSL, setting rpath for portability
-PATH=../bin:/bin:/usr/bin \
-PKG_CONFIG_PATH="~+/../crystal-1.17.1-1/embedded/lib/pkgconfig:~+/dist/OpenSSL.v3.5.2.aarch64-apple-darwin/lib/pkgconfig" \
-LIBRARY_PATH="~+/dist/OpenSSL.v3.5.2.aarch64-apple-darwin/lib" \
+PATH=$PWD/../bin:/bin:/usr/bin \
+PKG_CONFIG_PATH="$PWD/../crystal-1.17.1-1/embedded/lib/pkgconfig:$PWD/dist/OpenSSL.v3.5.2.aarch64-apple-darwin/lib/pkgconfig" \
+LIBRARY_PATH="$PWD/dist/OpenSSL.v3.5.2.aarch64-apple-darwin/lib" \
 ../bin/crystal build src/cli.cr -o dist/coveralls --release --no-debug --progress \
 --link-flags "-Wl,-rpath,@executable_path/OpenSSL.v3.5.2.aarch64-apple-darwin/lib"
 ```

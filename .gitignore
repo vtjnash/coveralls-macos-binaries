@@ -8,6 +8,9 @@ bin/
 # Coverage reporter clone
 coverage-reporter/
 
+# Python virtual environment
+venv/
+
 # Test directories
 test-portable-coveralls/
 
