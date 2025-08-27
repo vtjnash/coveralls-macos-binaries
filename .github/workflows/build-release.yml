@@ -12,6 +12,9 @@ env:
   CRYSTAL_VERSION: "1.17.1"
   OPENSSL_VERSION: "3.5.2"
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ${{ matrix.runner }}
@@ -195,6 +198,23 @@ jobs:
             - ✅ Uses only system libraries + bundled Julia OpenSSL ${{ env.OPENSSL_VERSION }}
             - ✅ Embedded rpath - works immediately after extraction
             - ✅ True portability - runs on any macOS system
+
+            ### ⚠️ Download Warning
+            **IMPORTANT**: Always download the binary using `curl` or `wget`. Never use Safari or other browsers, as they will apply Gatekeeper quarantine attributes that prevent the binary from running.
+
+            ```bash
+            # Download with curl (recommended)
+            curl -L -O https://github.com/.../coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}.tar.gz
+
+            # Or download with wget
+            wget https://github.com/.../coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}.tar.gz
+            ```
+
+            **Alternative**: But if you did download with Safari, you can remove the quarantine attributes (treat this like you would rm -rf and make sure you type <path> correctly!):
+            ```bash
+            # Remove quarantine attributes from all downloaded files or all extracted contents:
+            find <path> -print -exec xattr -d com.apple.quarantine {} \;
+            ```
 
             ### Usage
             ```bash
