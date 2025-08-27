@@ -40,7 +40,7 @@ mkdir -p bin
 
 # Create symlinks to tools
 ln -s ../crystal-1.17.1-1/bin/crystal bin/crystal
-ln -s /opt/homebrew/bin/shards bin/shards  
+ln -s /opt/homebrew/bin/shards bin/shards
 ln -s /opt/homebrew/bin/pkg-config bin/pkg-config
 ```
 
@@ -55,12 +55,14 @@ cd coverage-reporter
 PATH=../bin:$PATH ../bin/shards install --production
 ```
 
-### 5. Create Distributable Structure
+### 5. Extract OpenSSL to Distribution Folder
 
 ```bash
-# Move OpenSSL libraries into the dist folder for bundling
 cd coverage-reporter
-mv ../OpenSSL.v3.5.2.aarch64-apple-darwin dist/
+
+# Extract OpenSSL libraries directly into the dist folder
+mkdir -p dist/OpenSSL.v3.5.2.aarch64-apple-darwin
+tar -xzf ../OpenSSL.v3.5.2.aarch64-apple-darwin.tar.gz -C dist/OpenSSL.v3.5.2.aarch64-apple-darwin
 ```
 
 ### 6. Build the Binary with Embedded Library Path
@@ -145,12 +147,42 @@ cd /path/to/anywhere/coveralls-macos
 
 The binary automatically finds the bundled OpenSSL libraries using the embedded rpath `@executable_path/OpenSSL.v3.5.2.aarch64-apple-darwin/lib`.
 
-## Next Steps for GitHub Action
+## GitHub Actions
 
-This local build process provides the foundation for creating a GitHub Action to:
-1. Download the Crystal tarball
-2. Set up the toolchain as demonstrated here
-3. Build the binary with the correct library configuration
-4. Package the binary as a release artifact
+This repository includes a GitHub Action that implements the build process:
 
-The key insight is using Crystal's embedded pkg-config files to avoid external library dependencies while still maintaining a functional build.
+### 🚀 Build and Release (`build-release.yml`)
+- **Manual trigger only**: Specify an upstream Coveralls version to build and release
+- **Multi-architecture builds**: Builds on both aarch64 (Apple Silicon) and x86_64 (Intel) runners
+- **Uses GitHub's checkout action** for clean repository cloning
+- **Creates GitHub releases** with portable macOS binaries as artifacts
+- **Release naming**: `{upstream_version}-build.{timestamp}` (e.g., `v0.6.15-build.20240827170900`)
+
+### Usage
+Go to Actions → "Build and Release Coveralls macOS Binary" → "Run workflow" → Enter upstream version (e.g., `v0.6.15`)
+
+### Release Artifacts
+Each release includes binaries for both architectures:
+
+**Apple Silicon (aarch64)**:
+- `coveralls-macos-{version}-aarch64.tar.gz` - Complete distributable package
+- `coveralls-macos-{version}-aarch64.tar.gz.sha256` - SHA-256 checksum for integrity verification
+- `coveralls-macos-{version}-aarch64-build-inputs.sha256` - Checksums of build input tarballs with descriptions
+
+**Intel (x86_64)**:
+- `coveralls-macos-{version}-x86_64.tar.gz` - Complete distributable package
+- `coveralls-macos-{version}-x86_64.tar.gz.sha256` - SHA-256 checksum for integrity verification
+- `coveralls-macos-{version}-x86_64-build-inputs.sha256` - Checksums of build input tarballs with descriptions
+
+Both binaries are self-contained with bundled Julia OpenSSL 3.5.2 libraries and work immediately after extraction.
+
+## Technical Implementation
+
+The GitHub Action implements the exact same build process documented above:
+1. Download Crystal 1.17.1 tarball and Julia OpenSSL 3.5.2 libraries
+2. Set up local toolchain with symlinks  
+3. Use GitHub's checkout action to clone specific upstream version
+4. Build with embedded rpath for portability
+5. Package and release as GitHub artifacts
+
+The key insight is using Crystal's embedded pkg-config files and Julia's portable OpenSSL 3.5.2 libraries to avoid external dependencies while maintaining a functional, distributable build.
