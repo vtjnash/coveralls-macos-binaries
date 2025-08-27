@@ -1,0 +1,16 @@
+# Build artifacts and downloaded files
+crystal-*/
+OpenSSL.*/
+
+# Local toolchain
+bin/
+
+# Coverage reporter clone
+coverage-reporter/
+
+# Test directories
+test-portable-coveralls/
+
+# Distributable packages and downloads
+*.tar.gz
+*.zip
