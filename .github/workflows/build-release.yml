@@ -48,9 +48,9 @@ jobs:
 
       - name: Download Julia OpenSSL Libraries
         run: |
-          # Download Julia OpenSSL binary wrapper
-          curl -L -o OpenSSL.v3.5.2.aarch64-apple-darwin.tar.gz \
-            https://github.com/JuliaBinaryWrappers/OpenSSL_jll.jl/releases/download/OpenSSL-v3.5.2+0/OpenSSL.v3.5.2.aarch64-apple-darwin.tar.gz
+          # Download Julia OpenSSL binary wrapper for the target architecture
+          curl -L -o OpenSSL.v3.5.2.${{ matrix.arch }}-apple-darwin.tar.gz \
+            https://github.com/JuliaBinaryWrappers/OpenSSL_jll.jl/releases/download/OpenSSL-v3.5.2+0/OpenSSL.v3.5.2.${{ matrix.arch }}-apple-darwin.tar.gz
 
       - name: Set Up Local Toolchain
         run: |
@@ -68,7 +68,6 @@ jobs:
           repository: coverallsapp/coverage-reporter
           ref: ${{ github.event.inputs.upstream_version }}
           path: coverage-reporter
-          depth: 1
 
       - name: Install Coverage Reporter Dependencies
         run: |
@@ -82,8 +81,8 @@ jobs:
           cd coverage-reporter
           
           # Extract OpenSSL libraries directly into the dist folder
-          mkdir -p dist/OpenSSL.v3.5.2.aarch64-apple-darwin
-          tar -xzf ../OpenSSL.v3.5.2.aarch64-apple-darwin.tar.gz -C dist/OpenSSL.v3.5.2.aarch64-apple-darwin
+          mkdir -p dist/OpenSSL.v3.5.2.${{ matrix.arch }}-apple-darwin
+          tar -xzf ../OpenSSL.v3.5.2.${{ matrix.arch }}-apple-darwin.tar.gz -C dist/OpenSSL.v3.5.2.${{ matrix.arch }}-apple-darwin
 
       - name: Build Binary with Embedded Library Path
         run: |
@@ -91,10 +90,10 @@ jobs:
           
           # Build with Crystal's embedded libraries and Julia OpenSSL, setting rpath for portability
           PATH=../bin:/bin:/usr/bin \
-          PKG_CONFIG_PATH="$PWD/../crystal-1.17.1-1/embedded/lib/pkgconfig:$PWD/dist/OpenSSL.v3.5.2.aarch64-apple-darwin/lib/pkgconfig" \
-          LIBRARY_PATH="$PWD/dist/OpenSSL.v3.5.2.aarch64-apple-darwin/lib" \
+          PKG_CONFIG_PATH="$PWD/../crystal-1.17.1-1/embedded/lib/pkgconfig:$PWD/dist/OpenSSL.v3.5.2.${{ matrix.arch }}-apple-darwin/lib/pkgconfig" \
+          LIBRARY_PATH="$PWD/dist/OpenSSL.v3.5.2.${{ matrix.arch }}-apple-darwin/lib" \
           ../bin/crystal build src/cli.cr -o dist/coveralls --release --no-debug --progress \
-          --link-flags "-Wl,-rpath,@executable_path/OpenSSL.v3.5.2.aarch64-apple-darwin/lib"
+          --link-flags "-Wl,-rpath,@executable_path/OpenSSL.v3.5.2.${{ matrix.arch }}-apple-darwin/lib"
 
       - name: Test Binary
         run: |
@@ -142,8 +141,8 @@ jobs:
           echo "" >> "coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}-build-inputs.sha256"
           
           # Add Julia OpenSSL tarball with filename  
-          echo "# Julia OpenSSL Libraries (aarch64-apple-darwin)" >> "coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}-build-inputs.sha256"
-          shasum -a 256 OpenSSL.v3.5.2.aarch64-apple-darwin.tar.gz >> "coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}-build-inputs.sha256"
+          echo "# Julia OpenSSL Libraries (${{ matrix.arch }}-apple-darwin)" >> "coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}-build-inputs.sha256"
+          shasum -a 256 OpenSSL.v3.5.2.${{ matrix.arch }}-apple-darwin.tar.gz >> "coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}-build-inputs.sha256"
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
