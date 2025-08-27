@@ -167,15 +167,15 @@ jobs:
           echo "# Julia OpenSSL Libraries (${{ matrix.arch }}-apple-darwin)" >> "coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}-build-inputs.sha256"
           shasum -a 256 OpenSSL.v${{ env.OPENSSL_VERSION }}.${{ matrix.arch }}-apple-darwin.tar.gz >> "coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}-build-inputs.sha256"
 
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}
-          path: |
-            coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}.tar.gz
-            coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}.tar.gz.sha256
-            coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}-build-inputs.sha256
-          retention-days: 90
+      #- name: Upload Artifact
+      #  uses: actions/upload-artifact@v4
+      #  with:
+      #    name: coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}
+      #    path: |
+      #      coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}.tar.gz
+      #      coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}.tar.gz.sha256
+      #      coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}-build-inputs.sha256
+      #    retention-days: 90
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
