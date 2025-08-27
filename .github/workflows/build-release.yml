@@ -31,13 +31,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Generate release tag
-        id: release_info
-        run: |
-          # Generate build counter
-          BUILD_COUNTER=$(date +%Y%m%d%H%M%S)
-          RELEASE_TAG="${{ github.event.inputs.upstream_version }}-build.${BUILD_COUNTER}"
-          echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
 
       - name: Install Homebrew dependencies
         run: |
@@ -167,15 +160,44 @@ jobs:
           echo "# Julia OpenSSL Libraries (${{ matrix.arch }}-apple-darwin)" >> "coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}-build-inputs.sha256"
           shasum -a 256 OpenSSL.v${{ env.OPENSSL_VERSION }}.${{ matrix.arch }}-apple-darwin.tar.gz >> "coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}-build-inputs.sha256"
 
-      #- name: Upload Artifact
-      #  uses: actions/upload-artifact@v4
-      #  with:
-      #    name: coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}
-      #    path: |
-      #      coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}.tar.gz
-      #      coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}.tar.gz.sha256
-      #      coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}-build-inputs.sha256
-      #    retention-days: 90
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}
+          path: |
+            coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}.tar.gz
+            coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}.tar.gz.sha256
+            coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}-build-inputs.sha256
+          retention-days: 7
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate release tag
+        id: release_info
+        run: |
+          # Generate build counter
+          BUILD_COUNTER=$(date +%Y%m%d%H%M%S)
+          RELEASE_TAG="${{ github.event.inputs.upstream_version }}-build.${BUILD_COUNTER}"
+          echo "release_tag=$RELEASE_TAG" >> $GITHUB_OUTPUT
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Organize release files
+        run: |
+          # Create release directory
+          mkdir -p release-files
+
+          # Copy all files from artifact directories to release directory
+          find artifacts -name "*.tar.gz" -exec cp {} release-files/ \;
+          find artifacts -name "*.sha256" -exec cp {} release-files/ \;
+
+          # List what we have
+          ls -la release-files/
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
@@ -190,8 +212,7 @@ jobs:
             ### Build Components
             - **Crystal Compiler**: ${{ env.CRYSTAL_VERSION }} (darwin-universal)
             - **OpenSSL Libraries**: ${{ env.OPENSSL_VERSION }} (Julia BinaryWrappers)
-            - **Build Architecture**: ${{ matrix.arch }}
-            - **Build Target**: ${{ matrix.arch }}-apple-darwin
+            - **Build Architectures**: aarch64 (Apple Silicon) and x86_64 (Intel)
 
             ### Features
             - ✅ Completely self-contained - no external dependencies
@@ -204,10 +225,12 @@ jobs:
 
             ```bash
             # Download with curl (recommended)
-            curl -L -O https://github.com/.../coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}.tar.gz
+            curl -L -O https://github.com/.../coveralls-macos-${{ github.event.inputs.upstream_version }}-aarch64.tar.gz
+            curl -L -O https://github.com/.../coveralls-macos-${{ github.event.inputs.upstream_version }}-x86_64.tar.gz
 
             # Or download with wget
-            wget https://github.com/.../coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}.tar.gz
+            wget https://github.com/.../coveralls-macos-${{ github.event.inputs.upstream_version }}-aarch64.tar.gz
+            wget https://github.com/.../coveralls-macos-${{ github.event.inputs.upstream_version }}-x86_64.tar.gz
             ```
 
             **Alternative**: But if you did download with Safari, you can remove the quarantine attributes (treat this like you would rm -rf and make sure you type <path> correctly!):
@@ -218,14 +241,18 @@ jobs:
 
             ### Usage
             ```bash
+            # Choose the appropriate architecture
+            # For Apple Silicon (M1/M2/M3): aarch64
+            # For Intel Macs: x86_64
+
             # Verify integrity (optional)
-            shasum -a 256 -c coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}.tar.gz.sha256
+            shasum -a 256 -c coveralls-macos-${{ github.event.inputs.upstream_version }}-aarch64.tar.gz.sha256
 
             # View build input checksums (optional)
-            cat coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}-build-inputs.sha256
+            cat coveralls-macos-${{ github.event.inputs.upstream_version }}-aarch64-build-inputs.sha256
 
             # Extract the archive
-            tar -xzf coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}.tar.gz
+            tar -xzf coveralls-macos-${{ github.event.inputs.upstream_version }}-aarch64.tar.gz
             cd coveralls-macos
 
             # Run immediately - no setup required!
@@ -234,9 +261,9 @@ jobs:
             ```
 
             ### Build Reproducibility
-            The build inputs checksum file contains SHA-256 hashes of:
+            The build inputs checksum files contain SHA-256 hashes of:
             - Crystal ${{ env.CRYSTAL_VERSION }} darwin-universal tarball
-            - Julia OpenSSL ${{ env.OPENSSL_VERSION }} ${{ matrix.arch }}-apple-darwin tarball
+            - Julia OpenSSL ${{ env.OPENSSL_VERSION }} architecture-specific tarballs
 
             This enables verification and reproduction of the exact build environment.
 
@@ -249,11 +276,9 @@ jobs:
             - `/usr/lib/libSystem.B.dylib` (system library)
 
             Built with Crystal ${{ env.CRYSTAL_VERSION }} using our portable build process.
-          files: |
-            coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}.tar.gz
-            coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}.tar.gz.sha256
-            coveralls-macos-${{ github.event.inputs.upstream_version }}-${{ matrix.artifact_suffix }}-build-inputs.sha256
-          draft: false
+          files: release-files/*
+          draft: true
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
