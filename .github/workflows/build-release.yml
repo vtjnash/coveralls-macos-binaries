@@ -255,9 +255,9 @@ jobs:
             tar -xzf coveralls-macos-${{ github.event.inputs.upstream_version }}-aarch64.tar.gz
             cd coveralls-macos
 
-            # Run immediately - no setup required!
-            ./coveralls --version
-            ./coveralls --help
+            # Always use SSL_CERT_FILE to avoid SSL certificate issues:
+            SSL_CERT_FILE=/etc/ssl/cert.pem ./coveralls --version
+            SSL_CERT_FILE=/etc/ssl/cert.pem ./coveralls --help
             ```
 
             ### Build Reproducibility

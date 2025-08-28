@@ -79,8 +79,8 @@ LIBRARY_PATH="$PWD/dist/OpenSSL.v3.5.2.aarch64-apple-darwin/lib" \
 ### 7. Test the Distributable Binary
 
 ```bash
-# Binary now works automatically without environment variables!
-./dist/coveralls --version
+# Always use SSL_CERT_FILE to avoid SSL certificate issues:
+SSL_CERT_FILE=/etc/ssl/cert.pem ./dist/coveralls --version
 ```
 
 ## Final Result
@@ -136,7 +136,9 @@ The `coverage-reporter/dist/` folder is completely self-contained and portable:
 # The entire dist folder can be copied anywhere and works immediately
 cp -r coverage-reporter/dist /path/to/anywhere/coveralls-macos
 cd /path/to/anywhere/coveralls-macos
-./coveralls --version  # Works without any setup!
+
+# Always use SSL_CERT_FILE to avoid SSL certificate issues:
+SSL_CERT_FILE=/etc/ssl/cert.pem ./coveralls --version
 ```
 
 ### What's in the distributable folder:
