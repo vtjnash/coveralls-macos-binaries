@@ -243,7 +243,6 @@ jobs:
 
             # Extract the archive
             tar -xzf coveralls-macos-aarch64.tar.gz
-            cd coveralls-macos
 
             # Always use SSL_CERT_FILE to avoid SSL certificate issues:
             SSL_CERT_FILE=/etc/ssl/cert.pem ./coveralls --version

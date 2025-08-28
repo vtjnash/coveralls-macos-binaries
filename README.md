@@ -20,12 +20,9 @@ Both binaries are self-contained with bundled Julia OpenSSL 3.5.2 libraries and 
 
 ### Usage
 ```bash
-# Download the latest release for your architecture
-curl -L -o coveralls-macos-aarch64.tar.gz https://github.com/vtjnash/coveralls-macos-binaries/releases/latest/download/coveralls-macos-aarch64.tar.gz
-
-# Extract and use
-tar -xzf coveralls-macos-aarch64.tar.gz
-cd coveralls-macos-aarch64
+# Download and extract the appropriate architecture
+curl -L https://github.com/vtjnash/coveralls-macos-binaries/releases/latest/download/coveralls-macos-aarch64.tar.gz | tar -xz
+curl -L https://github.com/vtjnash/coveralls-macos-binaries/releases/latest/download/coveralls-macos-x86_64.tar.gz | tar -xz
 
 # Always use SSL_CERT_FILE environment variable to avoid SSL certificate issues:
 SSL_CERT_FILE=/etc/ssl/cert.pem ./coveralls --version
