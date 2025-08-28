@@ -179,14 +179,14 @@ Go to Actions → "Build and Release Coveralls macOS Binary" → "Run workflow" 
 Each release includes binaries for both architectures:
 
 **Apple Silicon (aarch64)**:
-- `coveralls-macos-{version}-aarch64.tar.gz` - Complete distributable package
-- `coveralls-macos-{version}-aarch64.tar.gz.sha256` - SHA-256 checksum for integrity verification
-- `coveralls-macos-{version}-aarch64-build-inputs.sha256` - Checksums of build input tarballs with descriptions
+- `coveralls-macos-aarch64.tar.gz` - Complete distributable package
+- `coveralls-macos-aarch64.tar.gz.sha256` - SHA-256 checksum for integrity verification
+- `coveralls-macos-aarch64-build-inputs.sha256` - Checksums of build input tarballs with descriptions
 
 **Intel (x86_64)**:
-- `coveralls-macos-{version}-x86_64.tar.gz` - Complete distributable package
-- `coveralls-macos-{version}-x86_64.tar.gz.sha256` - SHA-256 checksum for integrity verification
-- `coveralls-macos-{version}-x86_64-build-inputs.sha256` - Checksums of build input tarballs with descriptions
+- `coveralls-macos-x86_64.tar.gz` - Complete distributable package
+- `coveralls-macos-x86_64.tar.gz.sha256` - SHA-256 checksum for integrity verification
+- `coveralls-macos-x86_64-build-inputs.sha256` - Checksums of build input tarballs with descriptions
 
 Both binaries are self-contained with bundled Julia OpenSSL 3.5.2 libraries and work immediately after extraction.
 
