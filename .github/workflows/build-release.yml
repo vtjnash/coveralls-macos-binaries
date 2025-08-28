@@ -84,9 +84,39 @@ jobs:
           mkdir -p dist/OpenSSL.v${{ env.OPENSSL_VERSION }}.${{ matrix.arch }}-apple-darwin
           tar -xzf ../OpenSSL.v${{ env.OPENSSL_VERSION }}.${{ matrix.arch }}-apple-darwin.tar.gz -C dist/OpenSSL.v${{ env.OPENSSL_VERSION }}.${{ matrix.arch }}-apple-darwin
 
+          # Copy system CA certificates for SSL verification
+          mkdir -p dist/OpenSSL.v${{ env.OPENSSL_VERSION }}.${{ matrix.arch }}-apple-darwin/ssl
+          if [ -f /etc/ssl/cert.pem ]; then
+            cp /etc/ssl/cert.pem dist/OpenSSL.v${{ env.OPENSSL_VERSION }}.${{ matrix.arch }}-apple-darwin/ssl/
+            echo "Copied system CA certificates"
+          else
+            echo "Warning: System CA certificates not found at /etc/ssl/cert.pem"
+          fi
+
       - name: Build Binary with Embedded Library Path
         run: |
           cd coverage-reporter
+
+          # Create OpenSSL configuration that points to bundled CA certificates
+          cat > dist/OpenSSL.v${{ env.OPENSSL_VERSION }}.${{ matrix.arch }}-apple-darwin/ssl/openssl.cnf << 'EOF'
+          # OpenSSL configuration for coveralls binary
+          openssl_conf = openssl_init
+
+          [openssl_init]
+          ssl_conf = ssl_sect
+
+          [ssl_sect]
+          system_default = system_default_sect
+
+          [system_default_sect]
+          CipherString = DEFAULT@SECLEVEL=1
+          MinProtocol = TLSv1.2
+          EOF
+
+          # Set CA file path if available
+          if [ -f "dist/OpenSSL.v${{ env.OPENSSL_VERSION }}.${{ matrix.arch }}-apple-darwin/ssl/cert.pem" ]; then
+            echo "CAfile = @executable_path/OpenSSL.v${{ env.OPENSSL_VERSION }}.${{ matrix.arch }}-apple-darwin/ssl/cert.pem" >> dist/OpenSSL.v${{ env.OPENSSL_VERSION }}.${{ matrix.arch }}-apple-darwin/ssl/openssl.cnf
+          fi
 
           # Build with Crystal's embedded libraries and Julia OpenSSL, setting rpath for portability
           PATH=../bin:/bin:/usr/bin \

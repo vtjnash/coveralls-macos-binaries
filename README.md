@@ -92,13 +92,26 @@ LIBRARY_PATH="$PWD/dist/OpenSSL.v3.5.2.aarch64-apple-darwin/lib" \
 
 ### Library Dependencies
 ```
-./dist/coveralls:
-    /usr/lib/libxml2.2.dylib (system library)
-    /usr/lib/libz.1.dylib (system library)
-    @rpath/libssl.3.dylib (Julia OpenSSL - portable)
-    @rpath/libcrypto.3.dylib (Julia OpenSSL - portable)
-    /usr/lib/libiconv.2.dylib (system library)
-    /usr/lib/libSystem.B.dylib (system library)
+### Library Dependencies
+- `/usr/lib/libxml2.2.dylib` (system library)
+- `/usr/lib/libz.1.dylib` (system library)
+- `@rpath/libssl.3.dylib` (bundled Julia OpenSSL ${{ env.OPENSSL_VERSION }})
+- `@rpath/libcrypto.3.dylib` (bundled Julia OpenSSL ${{ env.OPENSSL_VERSION }})
+- `/usr/lib/libiconv.2.dylib` (system library)
+- `/usr/lib/libSystem.B.dylib` (system library)
+
+            ### SSL Certificate Handling
+            The binary includes:
+            - Bundled Julia OpenSSL ${{ env.OPENSSL_VERSION }} libraries
+            - System CA certificate bundle (copied during build)
+            - Custom OpenSSL configuration for certificate verification
+
+            If you encounter SSL certificate errors, the binary will automatically:
+            1. Try using bundled CA certificates first
+            2. Fallback to system CA certificates
+            3. As a last resort, disable SSL verification (with warning)
+
+            Built with Crystal ${{ env.CRYSTAL_VERSION }} using our portable build process.
 ```
 
 ### Key Achievements
@@ -109,6 +122,7 @@ LIBRARY_PATH="$PWD/dist/OpenSSL.v3.5.2.aarch64-apple-darwin/lib" \
 - ✅ **Embedded rpath** - binary automatically finds bundled libraries without environment variables
 - ✅ **True portability** - entire `dist/` folder can be moved anywhere and works immediately
 - ✅ Much cleaner build process with minimal external dependencies
+- ✅ **SSL Certificate Support** - bundled CA certificates for secure HTTPS connections
 
 ## Directory Structure
 ```
@@ -180,7 +194,7 @@ Both binaries are self-contained with bundled Julia OpenSSL 3.5.2 libraries and 
 
 The GitHub Action implements the exact same build process documented above:
 1. Download Crystal 1.17.1 tarball and Julia OpenSSL 3.5.2 libraries
-2. Set up local toolchain with symlinks  
+2. Set up local toolchain with symlinks
 3. Use GitHub's checkout action to clone specific upstream version
 4. Build with embedded rpath for portability
 5. Package and release as GitHub artifacts
