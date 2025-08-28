@@ -1,28 +1,31 @@
 # Coveralls Coverage Reporter - Self-contained Binary Release
 
-This repository creates self-contained binary releases of the Coveralls coverage reporter for macOS, built using the Crystal compiler from a tarball and avoiding Homebrew library dependencies to ensure maximum portability.
+This repository creates self-contained binary releases of the [Coveralls coverage reporter](https://github.com/coverallsapp/coverage-reporter) for macOS, built using the Crystal compiler from a tarball and avoiding Homebrew library dependencies to ensure maximum portability.
 
 ## Use of Released Artifacts
 
 The released artifacts are self-contained, portable macOS binaries for the Coveralls coverage reporter. Each release includes:
 
 **Apple Silicon (aarch64)**:
-- `coveralls-macos-{version}-aarch64.tar.gz` - Complete distributable package
-- `coveralls-macos-{version}-aarch64.tar.gz.sha256` - SHA-256 checksum for integrity verification
-- `coveralls-macos-{version}-aarch64-build-inputs.sha256` - Checksums of build input tarballs with descriptions
+- `coveralls-macos-aarch64.tar.gz` - Complete distributable package
+- `coveralls-macos-aarch64.tar.gz.sha256` - SHA-256 checksum for integrity verification
+- `coveralls-macos-aarch64-build-inputs.sha256` - Checksums of build input tarballs with descriptions
 
 **Intel (x86_64)**:
-- `coveralls-macos-{version}-x86_64.tar.gz` - Complete distributable package
-- `coveralls-macos-{version}-x86_64.tar.gz.sha256` - SHA-256 checksum for integrity verification
-- `coveralls-macos-{version}-x86_64-build-inputs.sha256` - Checksums of build input tarballs with descriptions
+- `coveralls-macos-x86_64.tar.gz` - Complete distributable package
+- `coveralls-macos-x86_64.tar.gz.sha256` - SHA-256 checksum for integrity verification
+- `coveralls-macos-x86_64-build-inputs.sha256` - Checksums of build input tarballs with descriptions
 
 Both binaries are self-contained with bundled Julia OpenSSL 3.5.2 libraries and work immediately after extraction.
 
 ### Usage
 ```bash
-# Download and extract the appropriate architecture
-tar -xzf coveralls-macos-{version}-{arch}.tar.gz
-cd coveralls-macos-{version}-{arch}
+# Download the latest release for your architecture
+curl -L -o coveralls-macos-aarch64.tar.gz https://github.com/vtjnash/coveralls-macos-binaries/releases/latest/download/coveralls-macos-aarch64.tar.gz
+
+# Extract and use
+tar -xzf coveralls-macos-aarch64.tar.gz
+cd coveralls-macos-aarch64
 
 # Always use SSL_CERT_FILE environment variable to avoid SSL certificate issues:
 SSL_CERT_FILE=/etc/ssl/cert.pem ./coveralls --version
