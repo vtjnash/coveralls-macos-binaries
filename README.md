@@ -202,3 +202,7 @@ SSL_CERT_FILE=/etc/ssl/cert.pem ./dist/coveralls -r PLACEHOLDERTOKEN done
 - ✅ **Embedded rpath** - binary automatically finds bundled libraries without environment variables
 - ✅ **True portability** - entire `dist/` folder can be moved anywhere and works immediately
 - ✅ Much cleaner build process with minimal external dependencies
+
+---
+
+🤖 *Generated with [Claude Code](https://claude.ai/code)*
