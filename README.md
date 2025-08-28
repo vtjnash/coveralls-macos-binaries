@@ -181,6 +181,7 @@ LIBRARY_PATH="$PWD/dist/OpenSSL.v3.5.2.aarch64-apple-darwin/lib" \
 ```bash
 # Always use SSL_CERT_FILE to avoid SSL certificate issues:
 SSL_CERT_FILE=/etc/ssl/cert.pem ./dist/coveralls --version
+SSL_CERT_FILE=/etc/ssl/cert.pem ./dist/coveralls -r PLACEHOLDERTOKEN done
 ```
 
 ### Final Result
